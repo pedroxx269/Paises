@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./App.css";
 
 function App() {
@@ -19,7 +19,7 @@ function App() {
 
   const [darkMode, setDarkMode] = useState(false);
 
-  // ===== DARK MODE (FIX DEFINITIVO) =====
+  // ===== DARK MODE =====
   useEffect(() => {
     if (darkMode) {
       document.body.classList.add("dark-mode");
@@ -57,56 +57,56 @@ function App() {
     fetchCountries();
   }, []);
 
-  // ===== CURRENCY CONVERTER =====
-  useEffect(() => {
-    const convertCurrency = async () => {
-      const { amount, from, to } = converter;
+  // ===== CURRENCY CONVERTER (FIX CI / VERCEL) =====
+  const convertCurrency = useCallback(async () => {
+    const { amount, from, to } = converter;
 
-      if (amount <= 0) {
-        setConverter((prev) => ({ ...prev, result: 0, rate: 0 }));
-        return;
+    if (amount <= 0) {
+      setConverter((prev) => ({ ...prev, result: 0, rate: 0 }));
+      return;
+    }
+
+    if (from === to) {
+      setConverter((prev) => ({
+        ...prev,
+        result: amount,
+        rate: 1,
+        error: null,
+      }));
+      return;
+    }
+
+    setConverter((prev) => ({ ...prev, loading: true, error: null }));
+
+    try {
+      const res = await fetch(
+        `https://api.frankfurter.app/latest?amount=${amount}&from=${from}&to=${to}`
+      );
+
+      if (!res.ok) {
+        throw new Error("Moeda não suportada");
       }
 
-      if (from === to) {
-        setConverter((prev) => ({
-          ...prev,
-          result: amount,
-          rate: 1,
-          error: null,
-        }));
-        return;
-      }
+      const data = await res.json();
 
-      setConverter((prev) => ({ ...prev, loading: true, error: null }));
-
-      try {
-        const res = await fetch(
-          `https://api.frankfurter.app/latest?amount=${amount}&from=${from}&to=${to}`
-        );
-
-        if (!res.ok) {
-          throw new Error("Moeda não suportada");
-        }
-
-        const data = await res.json();
-
-        setConverter((prev) => ({
-          ...prev,
-          result: data.rates[to],
-          rate: data.rates[to] / amount,
-          loading: false,
-        }));
-      } catch (err) {
-        setConverter((prev) => ({
-          ...prev,
-          loading: false,
-          error: "Conversão indisponível para esta moeda.",
-        }));
-      }
-    };
-
-    convertCurrency();
+      setConverter((prev) => ({
+        ...prev,
+        result: data.rates[to],
+        rate: data.rates[to] / amount,
+        loading: false,
+      }));
+    } catch (err) {
+      setConverter((prev) => ({
+        ...prev,
+        loading: false,
+        error: "Conversão indisponível para esta moeda.",
+      }));
+    }
   }, [converter.amount, converter.from, converter.to]);
+
+  useEffect(() => {
+    convertCurrency();
+  }, [convertCurrency]);
 
   // ===== HANDLERS =====
   const toggleDetails = (cca3) =>
@@ -158,7 +158,10 @@ function App() {
             >
               <div className="card-header">
                 <h2>{country.name.common}</h2>
-                <img src={country.flags.svg} alt={country.name.common} />
+                <img
+                  src={country.flags.svg}
+                  alt={country.name.common}
+                />
               </div>
 
               {isExpanded && (
@@ -175,7 +178,7 @@ function App() {
                       height="150"
                       loading="lazy"
                       style={{ borderRadius: "8px" }}
-                      src={`https://www.openstreetmap.org/export/embed.html?bbox=${lng-1}%2C${lat-1}%2C${lng+1}%2C${lat+1}&marker=${lat}%2C${lng}`}
+                      src={`https://www.openstreetmap.org/export/embed.html?bbox=${lng - 1}%2C${lat - 1}%2C${lng + 1}%2C${lat + 1}&marker=${lat}%2C${lng}`}
                     />
                   )}
 
@@ -199,7 +202,10 @@ function App() {
           {removedCountries.map((c) => (
             <div key={c.cca3} className="trash-item">
               <span>{c.name.common}</span>
-              <button className="restore-btn" onClick={() => restoreCountry(c.cca3)}>
+              <button
+                className="restore-btn"
+                onClick={() => restoreCountry(c.cca3)}
+              >
                 Restaurar
               </button>
             </div>
@@ -271,3 +277,4 @@ function App() {
 }
 
 export default App;
+
