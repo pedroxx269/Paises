@@ -21,14 +21,12 @@ function App() {
 
   // ===== DARK MODE =====
   useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add("dark-mode");
-    } else {
-      document.body.classList.remove("dark-mode");
-    }
+    document.body.classList.toggle("dark-mode", darkMode);
   }, [darkMode]);
 
-  const toggleDarkMode = () => setDarkMode((prev) => !prev);
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => !prev);
+  };
 
   // ===== FETCH COUNTRIES =====
   useEffect(() => {
@@ -57,10 +55,10 @@ function App() {
     fetchCountries();
   }, []);
 
-  // ===== CURRENCY CONVERTER (FIX CI / VERCEL) =====
-  const convertCurrency = useCallback(async () => {
-    const { amount, from, to } = converter;
+  // ===== CURRENCY CONVERTER (FIX ESLINT DEFINITIVO) =====
+  const { amount, from, to } = converter;
 
+  const convertCurrency = useCallback(async () => {
     if (amount <= 0) {
       setConverter((prev) => ({ ...prev, result: 0, rate: 0 }));
       return;
@@ -72,6 +70,7 @@ function App() {
         result: amount,
         rate: 1,
         error: null,
+        loading: false,
       }));
       return;
     }
@@ -102,34 +101,37 @@ function App() {
         error: "Conversão indisponível para esta moeda.",
       }));
     }
-  }, [converter.amount, converter.from, converter.to]);
+  }, [amount, from, to]);
 
   useEffect(() => {
     convertCurrency();
   }, [convertCurrency]);
 
   // ===== HANDLERS =====
-  const toggleDetails = (cca3) =>
+  const toggleDetails = (cca3) => {
     setExpandedCca3((prev) => (prev === cca3 ? null : cca3));
+  };
 
   const removeCountry = (cca3, e) => {
     e.stopPropagation();
-    const removed = countries.find((c) => c.cca3 === cca3);
 
-    if (removed) {
-      setRemovedCountries((prev) => [...prev, removed]);
-      setCountries((prev) => prev.filter((c) => c.cca3 !== cca3));
-      if (expandedCca3 === cca3) setExpandedCca3(null);
-    }
+    const removed = countries.find((c) => c.cca3 === cca3);
+    if (!removed) return;
+
+    setRemovedCountries((prev) => [...prev, removed]);
+    setCountries((prev) => prev.filter((c) => c.cca3 !== cca3));
+
+    if (expandedCca3 === cca3) setExpandedCca3(null);
   };
 
   const restoreCountry = (cca3) => {
     const restored = removedCountries.find((c) => c.cca3 === cca3);
+    if (!restored) return;
 
-    if (restored) {
-      setCountries((prev) => [...prev, restored]);
-      setRemovedCountries((prev) => prev.filter((c) => c.cca3 !== cca3));
-    }
+    setCountries((prev) => [...prev, restored]);
+    setRemovedCountries((prev) =>
+      prev.filter((c) => c.cca3 !== cca3)
+    );
   };
 
   // ===== JSX =====
@@ -166,10 +168,20 @@ function App() {
 
               {isExpanded && (
                 <div className="country-details">
-                  <p><strong>Capital:</strong> {country.capital}</p>
-                  <p><strong>Região:</strong> {country.region}</p>
-                  <p><strong>População:</strong> {country.population.toLocaleString()}</p>
-                  <p><strong>Moeda:</strong> {currencyCode}</p>
+                  <p>
+                    <strong>Capital:</strong>{" "}
+                    {country.capital?.[0] || "—"}
+                  </p>
+                  <p>
+                    <strong>Região:</strong> {country.region}
+                  </p>
+                  <p>
+                    <strong>População:</strong>{" "}
+                    {country.population.toLocaleString()}
+                  </p>
+                  <p>
+                    <strong>Moeda:</strong> {currencyCode || "—"}
+                  </p>
 
                   {lat && lng && (
                     <iframe
@@ -221,14 +233,14 @@ function App() {
           <input
             type="number"
             min="0"
-            value={converter.amount}
+            value={amount}
             onChange={(e) =>
               setConverter({ ...converter, amount: Number(e.target.value) })
             }
           />
 
           <select
-            value={converter.from}
+            value={from}
             onChange={(e) =>
               setConverter({ ...converter, from: e.target.value })
             }
@@ -243,7 +255,7 @@ function App() {
           <span>→</span>
 
           <select
-            value={converter.to}
+            value={to}
             onChange={(e) =>
               setConverter({ ...converter, to: e.target.value })
             }
@@ -263,11 +275,12 @@ function App() {
         ) : (
           <>
             <p className="resultado">
-              {converter.amount} {converter.from} ={" "}
-              <strong>{converter.result.toFixed(2)}</strong> {converter.to}
+              {amount} {from} ={" "}
+              <strong>{converter.result.toFixed(2)}</strong> {to}
             </p>
             <p className="exchange-rate">
-              Taxa: 1 {converter.from} = {converter.rate.toFixed(4)} {converter.to}
+              Taxa: 1 {from} ={" "}
+              {converter.rate.toFixed(4)} {to}
             </p>
           </>
         )}
@@ -277,4 +290,3 @@ function App() {
 }
 
 export default App;
-
