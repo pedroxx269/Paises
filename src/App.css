@@ -1,38 +1,264 @@
-.App {
-  text-align: center;
+/* =========================
+   BASE
+========================= */
+* {
+  box-sizing: border-box;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #e0e5ec, #f0f2f5);
+  color: #333;
+  overflow-x: hidden;
   min-height: 100vh;
+}
+
+body.dark-mode {
+  background: linear-gradient(135deg, #121212, #1a1a1a);
+  color: #f0f0f0;
+}
+
+/* =========================
+   APP CONTAINER
+========================= */
+.app-container {
+  min-height: 100vh;
+  background: transparent;
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+/* =========================
+   HEADER
+========================= */
+.app-header {
+  padding: 24px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  align-items: center;
+  background: linear-gradient(135deg, #e76464, #224abe);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  animation: slideDown 0.6s ease;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 32px;
+  background: linear-gradient(90deg, #2275ea, #0d0ad3);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* =========================
+   BOTÃO DARK MODE
+========================= */
+.dark-mode-toggle {
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-left: 20px;
+  background-color: #121212;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.dark-mode-toggle:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* =========================
+   CARDS
+========================= */
+.countries-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  padding: 30px;
+}
+
+.country-card {
+  width: 260px;
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: cardAppear 0.6s ease forwards;
+}
+
+.country-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 18px 35px rgba(0,0,0,0.25);
+}
+
+.card-header {
+  padding: 15px;
+  text-align: center;
+}
+
+.card-header h2 {
+  margin-bottom: 10px;
+}
+
+.card-header img {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  border-radius: 10px;
+  transition: transform 0.4s ease;
+}
+
+.country-card:hover img {
+  transform: scale(1.08);
+}
+
+/* =========================
+   DETALHES
+========================= */
+.country-details {
+  padding: 15px;
+  background: #f9f9f9;
+  animation: expandCard 0.35s ease forwards;
+}
+
+.country-details p {
+  margin: 6px 0;
+}
+
+/* =========================
+   BOTÃO REMOVER
+========================= */
+.remove-btn {
+  margin-top: 10px;
+  background: #e74a3b;
+  border: none;
+  color: white;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.remove-btn:hover {
+  background: #c0392b;
+  transform: scale(1.05);
+}
+
+/* =========================
+   LIXEIRA
+========================= */
+.trash-section {
+  max-width: 700px;
+  margin: 20px auto;
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  animation: fadeInUp 0.5s ease;
+}
+
+.trash-item {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.restore-btn {
+  background: #1cc88a;
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.restore-btn:hover {
+  transform: scale(1.1);
+}
+
+/* =========================
+   CONVERSOR
+========================= */
+.currency-converter {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 20px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(14px);
+  text-align: center;
+  animation: fadeInUp 0.6s ease;
+}
+
+.converter-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+input, select {
+  padding: 8px;
+  border-radius: 8px;
+  border: none;
+}
+
+/* =========================
+   DARK MODE
+========================= */
+body.dark-mode .country-card,
+body.dark-mode .trash-section {
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+}
+
+body.dark-mode .country-details {
+  background: #1e1e1e;
+}
+
+body.dark-mode .currency-converter {
+  background: rgba(255,255,255,0.08);
+}
+
+body.dark-mode .dark-mode-toggle {
+  background-color: #f0f0f0;
+  color: #121212;
+}
+
+/* =========================
+   ANIMAÇÕES
+========================= */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes cardAppear {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes expandCard {
+  from { opacity: 0; transform: scaleY(0.8); }
+  to { opacity: 1; transform: scaleY(1); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
